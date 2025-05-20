@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Потужно с MP3</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-color: black;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      position: relative;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    .main-content {
+      position: relative;
+      z-index: 2;
+      padding-top: 80px; /* просто сдвигаем вниз */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .gallery {
+      border: 3px solid red;
+      width: 90vw;
+      max-width: 320px;
+      height: 180px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #111;
+      margin-bottom: 10px;
+    }
+
+    .gallery img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    button {
+      width: 90vw;
+      max-width: 300px;
+      padding: 15px 0;
+      font-size: 18px;
+      border: 3px solid red;
+      background-color: black;
+      color: red;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    button:hover {
+      background-color: #1a1a1a;
+      transform: scale(1.05);
+    }
+
+    .mega {
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="main-content">
+  <div class="gallery">
+    <img id="slideshow" src="fun1.jpg" alt="угар" />
+  </div>
+
+  <div class="button-container">
+    <button class="mega" onclick="playSound('mega_potuzhno.mp3')">мега потужно</button>
+    <button onclick="playSound('potuzhno.mp3')">потужно</button>
+    <button onclick="playSound('ne_potuzhno.mp3')">не потужно</button>
+  </div>
+</div>
+
+<script>
+  function playSound(filename) {
+    const audio = new Audio(filename);
+    audio.play();
+  }
+
+  const images = [
+    "fun1.jpg", "fun2.jpg", "fun3.jpg", "fun4.jpg", "fun5.jpg",
+    "fun6.jpg", "fun7.jpg", "fun8.jpg", "fun9.jpg", "fun10.jpg"
+  ];
+  let current = 0;
+  const imgTag = document.getElementById("slideshow");
+
+  setInterval(() => {
+    current = (current + 1) % images.length;
+    imgTag.src = images[current];
+  }, 5000);
+
+  const canvas = document.getElementById("bgCanvas");
+  const ctx = canvas.getContext("2d");
+  let lines = [];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  function createLines(count) {
+    lines = [];
+    for (let i = 0; i < count; i++) {
+      lines.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        length: Math.random() * 100 + 50,
+        speed: Math.random() * 2 + 1,
+        angle: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "rgba(255, 0, 0, 0.4)";
+    ctx.lineWidth = 2;
+
+    for (let line of lines) {
+      const dx = Math.cos(line.angle) * line.length;
+      const dy = Math.sin(line.angle) * line.length;
+
+      ctx.beginPath();
+      ctx.moveTo(line.x, line.y);
+      ctx.lineTo(line.x + dx, line.y + dy);
+      ctx.stroke();
+
+      line.x += Math.cos(line.angle) * line.speed;
+      line.y += Math.sin(line.angle) * line.speed;
+
+      if (
+        line.x < 0 || line.x > canvas.width ||
+        line.y < 0 || line.y > canvas.height
+      ) {
+        line.x = Math.random() * canvas.width;
+        line.y = Math.random() * canvas.height;
+        line.angle = Math.random() * Math.PI * 2;
+      }
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  createLines(60);
+  animate();
+</script>
+
+</body>
+</html>
